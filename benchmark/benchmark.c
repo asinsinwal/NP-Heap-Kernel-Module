@@ -47,11 +47,12 @@ int main(int argc, char *argv[])
     fp = fopen(filename,"w");
     for(i = 0; i < number_of_objects; i++)
     {
+        /*
         npheap_lock(devfd,i);
         do 
         {
             size = rand()%(8192);
-        }
+        }*/
         while(size ==0);
         mapped_data = (char *)npheap_alloc(devfd,i,size);
         if(!mapped_data)
@@ -67,7 +68,9 @@ int main(int argc, char *argv[])
             sprintf(mapped_data,"%s%d",mapped_data,a);
         }
         fprintf(fp,"S\t%d\t%ld\t%d\t%lu\t%s\n",pid,current_time.tv_sec * 1000000 + current_time.tv_usec,i,strlen(mapped_data),mapped_data);
+        /*
         npheap_unlock(devfd,i);
+        */
     }
 /*    
     // try delete something

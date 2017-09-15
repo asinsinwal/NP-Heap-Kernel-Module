@@ -47,6 +47,7 @@ extern struct miscdevice npheap_dev;
 
 int npheap_mmap(struct file *filp, struct vm_area_struct *vma)
 {
+    printk(vma);
     return 0;
 }
 
