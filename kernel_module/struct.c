@@ -38,6 +38,7 @@ temp = temp->next;
 temp->next = newNode;
 newNode->prev = temp;
 newNode->next = head;
+head->prev = newNode;
 }
 
 void delete(int id)
@@ -58,7 +59,9 @@ if(temp==head)
 	else
 	{
 	 temp = head->next;
-     temp->prev = head->prev;
+	 temp->prev = head->prev;
+	 temp1 = head->prev;
+	 temp1->next = temp;
      free(head);
      head = temp;
 	 return;		
@@ -71,6 +74,7 @@ else
   	temp1->next = temp->next;
 	temp1 = temp->next;
 	temp1->prev = temp->prev;
+	free(temp);
 }
 }
 
