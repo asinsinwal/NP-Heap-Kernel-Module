@@ -47,13 +47,13 @@ int main(int argc, char *argv[])
     fp = fopen(filename,"w");
     for(i = 0; i < number_of_objects; i++)
     {
-        /*
-        npheap_lock(devfd,i);
+        
+        //npheap_lock(devfd,i);
         do 
         {
             size = rand()%(8192);
-        }*/
-        while(size ==0);
+        }
+        while(size == 0);
         mapped_data = (char *)npheap_alloc(devfd,i,size);
         if(!mapped_data)
         {

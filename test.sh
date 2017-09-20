@@ -3,6 +3,7 @@ cd kernel_module
 sudo make clean
 make
 sudo make install
+cd ..
 cd library
 sudo make clean
 make

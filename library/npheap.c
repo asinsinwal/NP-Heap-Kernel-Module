@@ -12,6 +12,7 @@ void *npheap_alloc(int devfd, __u64 offset, __u64 size)
      __u64 aligned_size= ((size + getpagesize() - 1) / getpagesize())*getpagesize();
      return mmap(0,aligned_size,PROT_READ|PROT_WRITE,MAP_SHARED,devfd,offset*getpagesize());
 }
+
 int npheap_lock(int devfd, __u64 offset)
 {
      struct npheap_cmd cmd;

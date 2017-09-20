@@ -45,15 +45,117 @@
 
 extern struct miscdevice npheap_dev;
 
+typedef struct node node;
+
+typedef struct mutex p_lock;
+
+// Structure is ready
+struct node {
+    __u64 objectId;
+    __u64 size;
+    void* k_virtual_addr;
+    //pthread_mutex_t lock;
+    p_lock *lock;
+    node *next;
+}*k_head_list = NULL;
+
+
+
+node createObject(__u64 offset)
+{
+    printk("Starting createObject function."); 
+    struct node *newNode = kmalloc(sizeof(struct node));
+
+    newNode->objectId = offset;
+    newNode->size = 0;
+    newNode->lock = PTHREAD_MUTEX_INITIALIZER;
+    newNode->k_virtual_addr = NULL;
+    return newNode;
+}
+
+
+
+node getObject(__u64 inputOffset)
+{
+    printk("Starting getObject function.");    
+    struct node* temp = k_head_list;
+    while(temp->next!=k_head_list)
+    {
+        if(temp->offset==inputOffset)
+            return temp;
+    }
+    return NULL;    
+}
+
+p_lock getMutex(__u64 inputOffset)
+{
+    printk("Starting getMutex function.");
+    struct node* temp = k_head_list;
+    while(temp->next!=k_head_list)
+    {
+        if(temp->offset==inputOffset)
+            return temp->lock;
+    }
+    printk("Object does not exist");
+    return NULL;    
+}
+
+__u64 getSize(__u64 inputOffset)
+{
+    printk("Starting getSize function.");
+    struct node* temp = k_head_list;
+    while(temp->next!=k_head_list)
+    {
+        if(temp->offset==inputOffset)
+            return temp->size;
+    }
+    printk("Object does not exist");
+    return -1;    
+}
+
+
+void resetAddress(__u64 inputOffset)
+{
+    struct node* temp = k_head_list;
+    while(temp->next!=k_head_list)
+    {
+        if(temp->offset==inputOffset)
+            {
+                temp->k_virtual_addr=NULL;
+                temp->size=0;
+            }
+    }  
+}
+
+// Memory Allocation is ready
 int npheap_mmap(struct file *filp, struct vm_area_struct *vma)
 {
-    printk(vma);
+    __u64 offset = vma->vm_pgoff;
+    struct node *object;
+
+    *object = getObject(offset);
+    if(object == NULL){
+        *object = createObject(offset);
+    }
+
+    if(object->size == 0){
+        __u64 size = vma->vm_end - vma->vm_start;
+        object->k_virtual_addr = kmalloc(size, GFP_KERNEL);
+        object->size = size;
+        //__virt_to_phys
+        if(remap_pfn_range(vma, vma->vm_start, __pa(object->k_virtual_addr)>>PAGE_SHIFT, size, vma->vm_page_prot) < 0)
+            return -EAGAIN;
+    }else{
+        if(remap_pfn_range(vma, vma->vm_start, __pa(object->k_virtual_addr)>>PAGE_SHIFT, object->size, vma->vm_page_prot) < 0)
+            return -EAGAIN;
+    }
     return 0;
 }
 
 int npheap_init(void)
 {
     int ret;
+    struct mutex *linked_list_lock;
     if ((ret = misc_register(&npheap_dev)))
         printk(KERN_ERR "Unable to register \"npheap\" misc device\n");
     else
@@ -65,4 +167,3 @@ void npheap_exit(void)
 {
     misc_deregister(&npheap_dev);
 }
-

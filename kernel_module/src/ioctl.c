@@ -42,24 +42,60 @@
 #include <linux/moduleparam.h>
 #include <linux/poll.h>
 #include <linux/mutex.h>
+#include <linux/list.h>
+#include <linux/pthread.h>
 
 // If exist, return the data.
+
+//mutex that will be shared among the threads
+static DEFINE_MUTEX(k_mutex); 
+
 long npheap_lock(struct npheap_cmd __user *user_cmd)
 {
+    printk("Calling npheap_lock function.");
+    struct npheap_cmd copy;
+    int flag = copy_from_user(copy, );
+    if(){
+
+    }else{
+        return -EFAULT;
+    }
+    struct head_node object;
+
+    object = getObject(copy.offset);
+
+    if(!object){
+        return -EFAULT;
+    }else{
+        pthread_mutex_t value = getMutex(object.offset);
+        pthread_mutex_lock(&value);
+    }
     return 0;
 }     
 
 long npheap_unlock(struct npheap_cmd __user *user_cmd)
 {
+    printk("Calling npheap_unlock function.");
+    struct npheap_cmd copy;
+
+    mutex_unlock(&k_mutex);
     return 0;
 }
 
 long npheap_getsize(struct npheap_cmd __user *user_cmd)
 {
+    printk("Calling npheap_getsize function.");
+    struct npheap_cmd copy;
+    (copy_from_user(&copy, (void __user *)user_cmd, sizeof(struct npheap_cmd))
+    __u64 offset = copy.offset / getpagesize();
+
+
+
     return 0;
 }
 long npheap_delete(struct npheap_cmd __user *user_cmd)
 {
+    printk("Calling npheap_delete function.");
     return 0;
 }
 
