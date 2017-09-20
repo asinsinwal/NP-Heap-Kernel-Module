@@ -83,7 +83,7 @@ struct node {
 node createObject(__u64 offset)
 {
     printk("Starting createObject function."); 
-    struct node *newNode = (node *)kmalloc(sizeof(struct node));
+    struct node *newNode = (node *)kmalloc(sizeof(struct node), GFP_KERNEL);
     struct node *temp = k_head_list;
     newNode->objectId = offset;
     newNode->size = 0;
